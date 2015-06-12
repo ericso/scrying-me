@@ -1,0 +1,6 @@
+API Server
+
+GET   /api/token  send username/password, get auth token
+POST  /api/users  Creates a new user with username/password
+GET   /api/users/<id>  Retrieves the user with id <id>
+GET   /api/resource  Retrieves example resource, requires authentication

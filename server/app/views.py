@@ -1,7 +1,34 @@
-from flask import request, jsonify, abort, url_for
+from flask import g, request, jsonify, abort, url_for
+from flask.ext.httpauth import HTTPBasicAuth
 
 from app import app, db
 from app.models import User
+
+auth = HTTPBasicAuth()
+
+@auth.verify_password
+def verify_password(username_or_token, password):
+  """Callback for Flask-HTTPAuth to verify given password for username
+      or auth token
+  If password (for username) or auth token is verified,
+   the user object is stored on g.user global
+  """
+  # try to authenticate by token first
+  user = User.verify_auth_token(username_or_token)
+  if not user:
+    # try to authenticate with username/password
+    user = User.query.filter_by(username=username_or_token).first()
+    if not user or not user.verify_password(password):
+      return False
+  g.user = user
+  return True
+
+@app.route('/api/token')
+@auth.login_required
+def get_auth_token():
+  token = g.user.generate_auth_token()
+  return jsonify({'token': token.decode('ascii')})
+
 
 @app.route('/api/users', methods = ['POST'])
 def new_user():
@@ -36,3 +63,9 @@ def get_user(id):
     abort(400) # no user found
 
   return jsonify({'username': user.username}), 201
+
+
+@app.route('/api/resource')
+@auth.login_required
+def get_resource():
+  return jsonify({'data': 'Hello, %s!' % g.user.username})
