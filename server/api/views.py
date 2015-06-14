@@ -48,30 +48,15 @@ def new_user():
   :return: status code 201 CREATED - successful submission
   """
   if request.headers['content-type'] == 'application/json':
-    # return Response(status=300)
-    # try:
-    #   username = request.json.get('username')
-    #   password = request.json.get('password')
-    # except ValueError:
-    #   return Response(status=300)
-
-    # try:
-    #   # data = json.loads(request.get_json())
-    #   data = request.get_json()
-    # except ValueError:
-    #   return Response(status=405)
-    # else:
-    #   username = data.get('username')
-    #   password = data.get('password')
-
-    # data = json.loads(request.get_json())
     data = request.get_json()
-    username = data['username']
-    password = data['password']
+    if data:
+      username = data['username']
+      password = data['password']
+    else:
+      return Response(status=400) # no JSON to parse
 
-
-    # if username is None or password is None:
-    #   return Response(status=400) # missing arguments
+    if username is None or password is None:
+      return Response(status=400) # missing arguments
     if User.query.filter_by(username=username).first() is not None:
       return Response(status=403) # existing user
 

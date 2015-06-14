@@ -17,8 +17,8 @@ class BaseTestCase(TestCase):
   def _pre_setup(self):
     self.app = create_app('settings_test')
     self.client = self.app.test_client()
-    # self.ctx = self.app.test_request_context()
-    # self.ctx.push()
+    self.ctx = self.app.test_request_context()
+    self.ctx.push()
 
   def _post_teardown(self):
     # self.ctx.pop()
@@ -43,37 +43,37 @@ class ApiTest(BaseTestCase):
       db.session.remove()
       db.drop_all()
 
+  ### Tests ###
   def test_create_new_user_but_missing_arguments(self):
     response = self.client.post(
       '/api/users',
       content_type='application/json'
     )
+    self.assertEqual(response.status_code, 400)
+
+  def test_create_new_user_but_invalid_request_type(self):
+    response = self.client.post(
+      '/api/users',
+      content_type='text/html'
+    )
     self.assertEqual(response.status_code, 405)
 
-  # def test_create_new_user_but_user_exists(self):
-  #   self.fail("write test")
+  def test_creating_new_user_successfully(self):
+    headers = {
+      'Content-Type': 'application/json'
+    }
+    data = dict(username='test_user', password='test_password')
+    json_data = json.dumps(data)
+    json_data_length = len(json_data)
+    headers['Content-Length'] =  json_data_length
 
-  # def test_create_new_user_but_invalid_request_type(self):
-  #   response = self.client.post(
-  #     '/api/users',
-  #     content_type='text/html'
-  #   )
-  #   self.assertEqual(response.status_code, 405)
+    response = self.client.post(
+      '/api/users',
+      headers=headers,
+      data=json_data
+    )
+    print("expect 201, got %s" % response.status)
+    self.assertEqual(response.status_code, 201)
 
-  # def test_creating_new_user_successfully(self):
-  #   headers = [('Content-Type', 'application/json')]
-  #   data = {
-  #     'username': 'test_user',
-  #     'password': 'test_password'
-  #   }
-  #   json_data = json.dumps(data)
-  #   json_data_length = len(json_data)
-  #   headers.append(('Content-Length', json_data_length))
-
-  #   response = self.client.post(
-  #     '/api/users',
-  #     headers=headers,
-  #     data=data
-  #   )
-  #   print("expect 201, got %s" % response.status)
-  #   self.assertEqual(response.status_code, 201)
+  def test_create_new_user_but_user_exists(self):
+    self.fail("write test")
