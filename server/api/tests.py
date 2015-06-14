@@ -1,24 +1,30 @@
+# -*- coding: utf-8 -*-
 import os
 import json
-import unittest
 
 from flask import Flask
 from flask.ext.testing import TestCase
 
-from app import app, db
+from application import create_app, db
+
+class BaseTestCase(TestCase):
+
+  def __call__(self, result=None):
+    self._pre_setup()
+    super(BaseTestCase, self).__call__(result)
+    self._post_teardown()
+
+  def _pre_setup(self):
+    self.app = create_app('settings_test')
+    self.client = self.app.test_client()
+    self.ctx = self.app.test_request_context()
+    self.ctx.push()
+
+  def _post_teardown(self):
+    self.ctx.pop()
 
 
-class ApiTest(TestCase):
-
-  # Define the test directory
-  BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-  SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(BASE_DIR, 'testing.db')
-  TESTING = True
-
-  def create_app(self):
-    app.config['TESTING'] = True
-    app.config['PRESERVE_CONTEXT_ON_EXCEPTION'] = False
-    return app
+class ApiTest(BaseTestCase):
 
   def setUp(self):
     db.create_all()
@@ -61,7 +67,3 @@ class ApiTest(TestCase):
     )
     print("expect 201, got %s" % response.status)
     self.assertEqual(response.status_code, 201)
-
-
-if __name__ == '__main__':
-  unittest.main()
