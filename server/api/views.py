@@ -37,7 +37,6 @@ def get_auth_token():
   token = g.user.generate_auth_token()
   return jsonify({'token': token.decode('ascii')})
 
-
 @api_app.route('/api/users', methods=['POST'])
 def new_user():
   """API endpoint for creating a new user
@@ -70,7 +69,6 @@ def new_user():
   else:
     return Response(status=405) # invalid request type
 
-
 @api_app.route('/api/users/<int:id>', methods=['GET'])
 def get_user(id):
   """API endpoint for getting a user by username
@@ -83,7 +81,6 @@ def get_user(id):
     abort(400) # no user found
 
   return jsonify({'username': user.username}), 201
-
 
 @api_app.route('/api/resource')
 @auth.login_required

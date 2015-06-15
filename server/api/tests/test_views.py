@@ -93,8 +93,7 @@ class ApiTest(BaseTestCase):
     )
     self.assertEqual(response.status_code, 403)
 
-
-  def test_get_auth_token(self):
+  def test_get_auth_token_successfully(self):
     # Create the user to request a token
     test_username = 'test_user'
     test_password = 'test_password'
@@ -110,3 +109,19 @@ class ApiTest(BaseTestCase):
     )
     data = json.loads(response.data)
     self.assertIn('token', data.keys())
+
+  def test_get_auth_token_failure(self):
+    # Create the user to request a token
+    test_username = 'test_user'
+    test_password = 'test_password'
+    test_user = self.create_user(username=test_username, password=test_password)
+
+    headers = self.create_basic_auth_header(
+      username='wrongusername',
+      password='wrongpassword'
+    )
+    response = self.client.get(
+      '/api/token',
+      headers=headers
+    )
+    self.assertEqual(response.status_code, 401)
