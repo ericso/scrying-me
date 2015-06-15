@@ -7,13 +7,11 @@ from flask import current_app
 from application import db
 
 
-
 class User(db.Model):
   __tablename__ = 'users'
   id = db.Column(db.Integer, primary_key=True)
   username = db.Column(db.String(32), index=True)
   password_hash = db.Column(db.String(128))
-  created_at = db.Column(db.DateTime, server_default=db.func.now())
   created_at = db.Column(db.DateTime, server_default=db.func.now())
   updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
 
@@ -31,7 +29,10 @@ class User(db.Model):
   def generate_auth_token(self, expiration=600):
     """Creates an authorization token
     """
-    s = Serializer(current_app.config['SECRET_KEY'], expires_in=expiration)
+    s = Serializer(
+      current_app.config['SECRET_KEY'],
+      expires_in=expiration
+    )
     return s.dumps({'id': self.id})
 
   @staticmethod

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
+from base64 import b64encode
 
 from flask import Flask
 from flask.ext.testing import TestCase
@@ -19,6 +20,25 @@ class ApiTest(BaseTestCase):
     with self.app.app_context():
       db.session.remove()
       db.drop_all()
+
+  def create_user(self, username, password):
+    """Creates a user with hashed password in the database
+
+    :return: user object
+    """
+    user = User(username=username)
+    user.hash_password(password)
+    db.session.add(user)
+    db.session.commit()
+    return user
+
+  def create_basic_auth_header(self, username, password):
+    """
+    :return: Basic auth header entry
+    """
+    return {
+      'Authorization': 'Basic %s' % b64encode("{0}:{1}".format(username, password))
+    }
 
   ### Tests ###
   def test_create_new_user_but_missing_arguments(self):
@@ -55,10 +75,7 @@ class ApiTest(BaseTestCase):
     # Create user
     test_username = 'test_user'
     test_password = 'test_password'
-    test_user = User(username=test_username)
-    test_user.hash_password(test_password)
-    db.session.add(test_user)
-    db.session.commit()
+    test_user = self.create_user(username=test_username, password=test_password)
 
     # Try to create the same user by sending request
     headers = {
@@ -76,3 +93,20 @@ class ApiTest(BaseTestCase):
     )
     self.assertEqual(response.status_code, 403)
 
+
+  def test_get_auth_token(self):
+    # Create the user to request a token
+    test_username = 'test_user'
+    test_password = 'test_password'
+    test_user = self.create_user(username=test_username, password=test_password)
+
+    headers = self.create_basic_auth_header(
+      username=test_username,
+      password=test_password
+    )
+    response = self.client.get(
+      '/api/token',
+      headers=headers
+    )
+    data = json.loads(response.data)
+    self.assertIn('token', data.keys())
