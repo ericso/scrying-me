@@ -5,7 +5,13 @@ POST  /api/users  Creates a new user with username/password
 GET   /api/users/<id>  Retrieves the user with id <id>
 GET   /api/resource  Retrieves example resource, requires authentication
 
+Authorization flow:
+1. Create a user by posting to /api/users with username and password in JSON format
+2. Get a token by sending username/password using HTTP Basic authorization to /api/token
+3. Cache token on client and send token in username field (Basic auth) on GET requests to resource
+4. Token default expiration is 10 minutes; when request fails due to auth, get another token
 
+# For testing
 # Register a user
 $ curl -i -X POST -H "Content-Type: application/json" -d '{"username":"test_user","password":"test_password"}' http://127.0.0.1:5000/api/users
 
