@@ -8,6 +8,7 @@ from flask.ext.testing import TestCase
 
 from application import create_app, db
 from api.models import User, Trip
+from api.serializers import default_json_serializer
 from common.tests import BaseTestCase
 
 
@@ -275,25 +276,3 @@ class ApiTest(BaseTestCase):
     self.assertEqual(response.status_code, 200)
     return_trip = json.loads(response.data)
     self.assertEqual(return_trip['trip'], trip_name)
-
-
-def convert_date_to_datetime(obj):
-  from datetime import datetime
-  return datetime.combine(obj, datetime.min.time())
-
-
-def default_json_serializer(obj):
-  """Default JSON serializer
-  """
-  import calendar, datetime
-
-  # convert date object to epoch time in milliseconds
-  obj = convert_date_to_datetime(obj)
-  if isinstance(obj, datetime.datetime):
-    if obj.utcoffset() is not None:
-      obj = obj - obj.utcoffset()
-  millis = int(
-    calendar.timegm(obj.timetuple()) * 1000 +
-    obj.microsecond / 1000
-  )
-  return millis
