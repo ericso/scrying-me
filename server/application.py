@@ -9,21 +9,18 @@ db = SQLAlchemy()
 def create_app(config_filemane):
   """Application factory
   """
-  # Define the WSGI application object
+  # define the WSGI application object
   app = Flask(__name__)
 
-  # Configuration
+  # configuration
   app.config.from_object(config_filemane)
 
-  # Initialize the database
+  # initialize the database
   db.init_app(app)
 
-  # Login
+  # login
   login_manager = LoginManager()
   login_manager.init_app(app)
-
-  # # Put views import after app creation to avoid circular import
-  # from app import views, models
 
   # import blueprints
   from api.views import users_app

@@ -48,3 +48,13 @@ class User(db.Model):
       return None # invalid token
     user = User.query.get(data['id'])
     return user
+
+
+class Trip(db.Model):
+  __tablename__ = 'trips'
+  id = db.Column(db.Integer, primary_key=True)
+  name = db.Column(db.String(256), index=True)
+  start = db.Column(db.DateTime)
+  end = db.Column(db.DateTime)
+  created_at = db.Column(db.DateTime, server_default=db.func.now())
+  updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())

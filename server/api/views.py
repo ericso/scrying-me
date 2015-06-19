@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
+from datetime import datetime
 
 from flask import Blueprint, current_app
 from flask import jsonify, url_for
@@ -7,7 +8,7 @@ from flask import g, request, Response
 from flask.ext.httpauth import HTTPBasicAuth
 
 from application import db
-from api.models import User
+from api.models import User, Trip
 
 
 users_app = Blueprint('users_app', __name__)
@@ -60,22 +61,37 @@ def new_user():
     db.session.commit()
     return jsonify({'username': user.username}), \
       201, \
-      {'Location': url_for('users_app.get_user', username=user.username, _external=True)}
+      {'Location': url_for('users_app.get_user', id=user.id, _external=True)}
   else:
     return Response(status=405) # invalid request type
 
-@users_app.route('/api/v0/users/<username>', methods=['GET'])
-def get_user(username):
-  """API endpoint for getting a user by username
+@users_app.route('/api/v0/users/<int:id>', methods=['GET'])
+@auth.login_required
+def get_user(id):
+  """API endpoint for getting a user by id
   """
-  if username is None:
+  if id is None:
     abort(400) # missing arguments
 
-  user = User.query.filter(username==username).first()
+  user = User.query.get(id)
   if user is None:
     abort(400) # no user found
 
   return jsonify({'username': user.username}), 200
+
+# @users_app.route('/api/v0/users/<username>', methods=['GET'])
+# def get_user(username):
+#   """API endpoint for getting a user by username
+#   """
+#   if username is None:
+#     abort(400) # missing arguments
+
+#   user = User.query.filter(username==username).first()
+#   if user is None:
+#     abort(400) # no user found
+
+#   return jsonify({'username': user.username}), 200
+
 
 @users_app.route('/api/v0/token')
 @auth.login_required
@@ -84,7 +100,52 @@ def get_auth_token():
   return jsonify({'token': token.decode('ascii')})
 
 
-@api_app.route('/api/v0/resource')
+@api_app.route('/api/v0/resources')
 @auth.login_required
 def get_resource():
-  return jsonify({'data': 'Hello, %s!' % g.user.username})
+  return jsonify({'data': 'Hello, %s!' % g.user.username}), 200
+
+
+@api_app.route('/api/v0/trips', methods=['POST'])
+def new_trip():
+  """API endpoint for creating a new trip
+
+  :return: status code 400 BAD REQUEST - missing arguments
+  :return: status code 401 NOT AUTHROIZED - invalid credentials
+  :return: status code 405 METHOD NOT ALLOWED - invalid JSON or request type
+  :return: status code 201 CREATED - successful submission
+  """
+  if request.headers['content-type'] == 'application/json':
+    data = request.get_json()
+    if data:
+      name = data['name']
+      start = datetime.fromtimestamp(data['start'])
+      end = datetime.fromtimestamp(data['end'])
+    else:
+      return Response(status=400) # no JSON to parse
+
+    if name is None or start is None or end is None:
+      return Response(status=400) # missing arguments
+
+    trip = Trip(name=name, start=start, end=end)
+    db.session.add(trip)
+    db.session.commit()
+    return jsonify({'trip': trip.name}), \
+      201, \
+      {'Location': url_for('api_app.get_trip', id=trip.id, _external=True)}
+  else:
+    return Response(status=405) # invalid request type
+
+@api_app.route('/api/v0/trips/<int:id>', methods=['GET'])
+@auth.login_required
+def get_trip(id):
+  """API endpoint for getting a trip by id
+  """
+  if id is None:
+    abort(400) # missing arguments
+
+  trip = Trip.query.get(id)
+  if trip is None:
+    abort(400) # no trip found
+
+  return jsonify({'trip': trip.name}), 200
