@@ -32,7 +32,7 @@ def verify_password(username_or_token, password):
   g.user = user
   return True
 
-@users_app.route('/api/users', methods=['POST'])
+@users_app.route('/api/v0/users', methods=['POST'])
 def new_user():
   """API endpoint for creating a new user
 
@@ -64,7 +64,7 @@ def new_user():
   else:
     return Response(status=405) # invalid request type
 
-@users_app.route('/api/users/<username>', methods=['GET'])
+@users_app.route('/api/v0/users/<username>', methods=['GET'])
 def get_user(username):
   """API endpoint for getting a user by username
   """
@@ -77,14 +77,14 @@ def get_user(username):
 
   return jsonify({'username': user.username}), 200
 
-@users_app.route('/api/token')
+@users_app.route('/api/v0/token')
 @auth.login_required
 def get_auth_token():
   token = g.user.generate_auth_token()
   return jsonify({'token': token.decode('ascii')})
 
 
-@api_app.route('/api/resource')
+@api_app.route('/api/v0/resource')
 @auth.login_required
 def get_resource():
   return jsonify({'data': 'Hello, %s!' % g.user.username})

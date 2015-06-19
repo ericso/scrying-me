@@ -48,7 +48,7 @@ class ApiTest(BaseTestCase):
     test_user = self.create_user(username=test_username, password=test_password)
 
     response = self.client.get(
-      '/api/users/%s' % (test_username,)
+      '/api/v0/users/%s' % (test_username,)
     )
     self.assertEqual(response.status_code, 200)
     user = json.loads(response.data)
@@ -56,14 +56,14 @@ class ApiTest(BaseTestCase):
 
   def test_create_new_user_but_missing_arguments(self):
     response = self.client.post(
-      '/api/users',
+      '/api/v0/users',
       content_type='application/json'
     )
     self.assertEqual(response.status_code, 400)
 
   def test_create_new_user_but_invalid_request_type(self):
     response = self.client.post(
-      '/api/users',
+      '/api/v0/users',
       content_type='text/html'
     )
     self.assertEqual(response.status_code, 405)
@@ -78,7 +78,7 @@ class ApiTest(BaseTestCase):
     headers['Content-Length'] =  json_data_length
 
     response = self.client.post(
-      '/api/users',
+      '/api/v0/users',
       headers=headers,
       data=json_data
     )
@@ -100,7 +100,7 @@ class ApiTest(BaseTestCase):
     headers['Content-Length'] =  json_data_length
 
     response = self.client.post(
-      '/api/users',
+      '/api/v0/users',
       headers=headers,
       data=json_data
     )
@@ -117,7 +117,7 @@ class ApiTest(BaseTestCase):
       password=test_password
     )
     response = self.client.get(
-      '/api/token',
+      '/api/v0/token',
       headers=headers
     )
     data = json.loads(response.data)
@@ -134,7 +134,7 @@ class ApiTest(BaseTestCase):
       password='wrongpassword'
     )
     response = self.client.get(
-      '/api/token',
+      '/api/v0/token',
       headers=headers
     )
     self.assertEqual(response.status_code, 401)
