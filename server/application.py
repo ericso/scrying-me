@@ -26,9 +26,11 @@ def create_app(config_filemane):
   # from app import views, models
 
   # import blueprints
+  from api.views import users_app
   from api.views import api_app
 
   # register blueprints
+  app.register_blueprint(users_app)
   app.register_blueprint(api_app)
 
   return app

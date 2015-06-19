@@ -41,6 +41,19 @@ class ApiTest(BaseTestCase):
     }
 
   ### Tests ###
+  def test_get_user_by_username(self):
+    # Create user
+    test_username = 'test_user'
+    test_password = 'test_password'
+    test_user = self.create_user(username=test_username, password=test_password)
+
+    response = self.client.get(
+      '/api/users/%s' % (test_username,)
+    )
+    self.assertEqual(response.status_code, 200)
+    user = json.loads(response.data)
+    self.assertEqual(user['username'], test_username)
+
   def test_create_new_user_but_missing_arguments(self):
     response = self.client.post(
       '/api/users',

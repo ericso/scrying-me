@@ -10,6 +10,7 @@ from application import db
 from api.models import User
 
 
+users_app = Blueprint('users_app', __name__)
 api_app = Blueprint('api_app', __name__)
 
 auth = HTTPBasicAuth()
@@ -31,13 +32,7 @@ def verify_password(username_or_token, password):
   g.user = user
   return True
 
-@api_app.route('/api/token')
-@auth.login_required
-def get_auth_token():
-  token = g.user.generate_auth_token()
-  return jsonify({'token': token.decode('ascii')})
-
-@api_app.route('/api/users', methods=['POST'])
+@users_app.route('/api/users', methods=['POST'])
 def new_user():
   """API endpoint for creating a new user
 
@@ -65,22 +60,29 @@ def new_user():
     db.session.commit()
     return jsonify({'username': user.username}), \
       201, \
-      {'Location': url_for('api_app.get_user', id=user.id, _external=True)}
+      {'Location': url_for('users_app.get_user', username=user.username, _external=True)}
   else:
     return Response(status=405) # invalid request type
 
-@api_app.route('/api/users/<int:id>', methods=['GET'])
-def get_user(id):
+@users_app.route('/api/users/<username>', methods=['GET'])
+def get_user(username):
   """API endpoint for getting a user by username
   """
-  if id is None:
+  if username is None:
     abort(400) # missing arguments
 
-  user = User.query.get(id)
+  user = User.query.filter(username==username).first()
   if user is None:
     abort(400) # no user found
 
-  return jsonify({'username': user.username}), 201
+  return jsonify({'username': user.username}), 200
+
+@users_app.route('/api/token')
+@auth.login_required
+def get_auth_token():
+  token = g.user.generate_auth_token()
+  return jsonify({'token': token.decode('ascii')})
+
 
 @api_app.route('/api/resource')
 @auth.login_required
