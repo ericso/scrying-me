@@ -29,6 +29,9 @@ TODO:
 Write tests for User model
  - unique usernames
 
+Write tests for Views
+ - return CORS headers on each response to API
+
 users api routes
  - get user by username should use same get route as ID, it should check if integer or string
  - create user should return username successfully created
