@@ -31,7 +31,11 @@
     }
 
     function Create(user) {
-      return $http.post('/api/users', user).then(handleSuccess, handleError('Error creating user'));
+      return $http.post(
+        'http://localhost:5000/api/v0/users',
+        user,
+        { headers: { 'content-type': 'application/json'} }
+      ).then(handleSuccess, handleError('Error creating user'));
     }
 
     function Update(user) {

@@ -16,6 +16,15 @@ api_app = Blueprint('api_app', __name__)
 
 auth = HTTPBasicAuth()
 
+@users_app.after_request
+@api_app.after_request
+def after_request(response):
+  response.headers.add('Access-Control-Allow-Origin', '*')
+  response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+  response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')
+  return response
+
+
 @auth.verify_password
 def verify_password(username_or_token, password):
   """Callback for Flask-HTTPAuth to verify given password for username
