@@ -5,8 +5,8 @@
     .module('app')
     .factory('UserService', UserService);
 
-  UserService.$inject = ['$http'];
-  function UserService($http) {
+  UserService.$inject = ['$http', 'API_URL'];
+  function UserService($http, API_URL) {
     var service = {};
 
     service.GetAll = GetAll;
@@ -20,7 +20,7 @@
 
     function GetAll() {
       return $http.get(
-        '/api/users'
+        '/users'
       ).then(
         handleSuccess,
         handleError('Error getting all users')
@@ -29,7 +29,7 @@
 
     function GetById(id) {
       return $http.get(
-        '/api/users/' + id
+        '/users/' + id
       ).then(
         handleSuccess,
         handleError('Error getting user by id')
@@ -47,7 +47,7 @@
 
     function Create(user) {
       return $http.post(
-        'http://localhost:5000/api/v0/users',
+        API_URL + '/users',
         user,
         { headers: { 'content-type': 'application/json'} }
       ).then(
@@ -58,7 +58,7 @@
 
     function Update(user) {
       return $http.put(
-        '/api/users/' + user.id, user
+        '/users/' + user.id, user
       ).then(
         handleSuccess,
         handleError('Error updating user')
@@ -67,7 +67,7 @@
 
     function Delete(id) {
       return $http.delete(
-        '/api/users/' + id
+        '/users/' + id
       ).then(
         handleSuccess,
         handleError('Error deleting user')
@@ -82,6 +82,8 @@
     }
 
     function handleError(error) {
+      // TODO(eso) why necessary to return function instead of dict?
+      // return { success: false, message: error }; // this doesn't work
       return function () {
         return { success: false, message: error };
       };

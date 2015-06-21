@@ -3,6 +3,7 @@
 
   angular
     .module('app', ['ngRoute', 'ngCookies'])
+    .constant('API_URL', 'http://localhost:5000/api/v0')
     .config(config)
     .run(run);
 
