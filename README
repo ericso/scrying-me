@@ -27,3 +27,9 @@ $ curl -u token_value:unused -i -X GET http://127.0.0.1:5000/api/v0/resources
 
 TODO:
 Write tests for User model
+ - unique usernames
+
+users api routes
+ - get user by username should use same get route as ID, it should check if integer or string
+ - create user should return username successfully created
+ - change /token route to /authenticate
