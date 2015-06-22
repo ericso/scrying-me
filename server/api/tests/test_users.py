@@ -21,7 +21,7 @@ class UsersTest(BaseTestCase):
       db.session.remove()
       db.drop_all()
 
-  def get_token_for_user(self, username, password):
+  def get_token_for_user(self, username, password, failure=False):
     """Shortcut method for creating a user in the test db
     and requesting an auth token via the API
     """
@@ -30,10 +30,16 @@ class UsersTest(BaseTestCase):
       password=password
     )
 
-    headers = UsersTest.create_basic_auth_header(
-      username=username,
-      password=password
-    )
+    if failure:
+      headers = UsersTest.create_basic_auth_header(
+        username=username,
+        password='thisisincorrectpassword'
+      )
+    else:
+      headers = UsersTest.create_basic_auth_header(
+        username=username,
+        password=password
+      )
 
     response = self.client.get(
       '/api/v0/token',
@@ -41,7 +47,7 @@ class UsersTest(BaseTestCase):
     )
     return response
 
-  def authorize_user(self, username, password):
+  def authorize_user(self, username, password, failure=False):
     """Shortcut method for creating a user in the test db
     and authenticating the user via the API
     """
@@ -53,7 +59,10 @@ class UsersTest(BaseTestCase):
     headers = {
       'Content-Type': 'application/json'
     }
-    data = dict(username=username, password=password)
+    if failure:
+      data = dict(username=username, password='thisisincorrectpassword')
+    else:
+      data = dict(username=username, password=password)
     json_data = json.dumps(data)
     json_data_length = len(json_data)
     headers['Content-Length'] =  json_data_length
@@ -180,8 +189,11 @@ class UsersTest(BaseTestCase):
 
   def test_authenticate_user_response_contains_cors_headers(self):
     response = self.authorize_user('test_user', 'test_password')
-    print(response)
     self.assertCORSHeaders(response)
+
+  def test_authenticate_user_unsuccessfully(self):
+    response = self.authorize_user('test_user', 'test_password', failure=True)
+    self.assertEqual(response.status_code, 403)
 
   def test_get_auth_token_successfully(self):
     response = self.get_token_for_user('test_user', 'test_password')
@@ -193,23 +205,5 @@ class UsersTest(BaseTestCase):
     self.assertCORSHeaders(response)
 
   def test_get_auth_token_failure(self):
-    # Create the user to request a token
-    test_username = 'test_user'
-    test_password = 'test_password'
-    test_user = UsersTest.create_user(
-      username=test_username,
-      password=test_password
-    )
-
-    headers = UsersTest.create_basic_auth_header(
-      username='wrongusername',
-      password='wrongpassword'
-    )
-    response = self.client.get(
-      '/api/v0/token',
-      headers=headers
-    )
+    response = self.get_token_for_user('test_user', 'test_password', failure=True)
     self.assertEqual(response.status_code, 401)
-
-
-
