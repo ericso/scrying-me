@@ -21,6 +21,26 @@ class UsersTest(BaseTestCase):
       db.session.remove()
       db.drop_all()
 
+  def authorize_user(self, username, password):
+    """Shortcut method for creating a user in the test db, and
+    authenticating the user via the API
+    """
+    test_user = UsersTest.create_user(
+      username=username,
+      password=password
+    )
+
+    headers = UsersTest.create_basic_auth_header(
+      username=username,
+      password=password
+    )
+
+    response = self.client.get(
+      '/api/v0/token',
+      headers=headers
+    )
+    return response
+
   @staticmethod
   def create_user(username, password):
     """Creates a user with hashed password in the database
@@ -108,7 +128,10 @@ class UsersTest(BaseTestCase):
     # Create user
     test_username = 'test_user'
     test_password = 'test_password'
-    test_user = UsersTest.create_user(username=test_username, password=test_password)
+    test_user = UsersTest.create_user(
+      username=test_username,
+      password=test_password
+    )
 
     # Try to create the same user by sending request
     headers = {
@@ -127,27 +150,22 @@ class UsersTest(BaseTestCase):
     self.assertEqual(response.status_code, 403)
 
   def test_get_auth_token_successfully(self):
-    # Create the user to request a token
-    test_username = 'test_user'
-    test_password = 'test_password'
-    test_user = UsersTest.create_user(username=test_username, password=test_password)
-
-    headers = UsersTest.create_basic_auth_header(
-      username=test_username,
-      password=test_password
-    )
-    response = self.client.get(
-      '/api/v0/token',
-      headers=headers
-    )
+    response = self.authorize_user('test_user', 'test_password')
     data = json.loads(response.data)
     self.assertIn('token', data.keys())
+
+  def test_get_auth_token_response_contains_cors_headers(self):
+    response = self.authorize_user('test_user', 'test_password')
+    self.assertCORSHeaders(response)
 
   def test_get_auth_token_failure(self):
     # Create the user to request a token
     test_username = 'test_user'
     test_password = 'test_password'
-    test_user = UsersTest.create_user(username=test_username, password=test_password)
+    test_user = UsersTest.create_user(
+      username=test_username,
+      password=test_password
+    )
 
     headers = UsersTest.create_basic_auth_header(
       username='wrongusername',

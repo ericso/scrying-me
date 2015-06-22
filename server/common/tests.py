@@ -28,3 +28,8 @@ class BaseTestCase(TestCase):
 
   def assertStatus(self, resp, status_code):
     self.assertEqual(resp.status_code, status_code)
+
+  def assertCORSHeaders(self, resp):
+    self.assertIn('Access-Control-Allow-Origin', resp.headers.keys())
+    self.assertIn('Access-Control-Allow-Headers', resp.headers.keys())
+    self.assertIn('Access-Control-Allow-Methods', resp.headers.keys())
