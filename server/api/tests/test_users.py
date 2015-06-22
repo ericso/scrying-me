@@ -21,9 +21,9 @@ class UsersTest(BaseTestCase):
       db.session.remove()
       db.drop_all()
 
-  def authorize_user(self, username, password):
-    """Shortcut method for creating a user in the test db, and
-    authenticating the user via the API
+  def get_token_for_user(self, username, password):
+    """Shortcut method for creating a user in the test db
+    and requesting an auth token via the API
     """
     test_user = UsersTest.create_user(
       username=username,
@@ -38,6 +38,30 @@ class UsersTest(BaseTestCase):
     response = self.client.get(
       '/api/v0/token',
       headers=headers
+    )
+    return response
+
+  def authorize_user(self, username, password):
+    """Shortcut method for creating a user in the test db
+    and authenticating the user via the API
+    """
+    test_user = UsersTest.create_user(
+      username=username,
+      password=password
+    )
+
+    headers = {
+      'Content-Type': 'application/json'
+    }
+    data = dict(username=username, password=password)
+    json_data = json.dumps(data)
+    json_data_length = len(json_data)
+    headers['Content-Length'] =  json_data_length
+
+    response = self.client.post(
+      '/api/v0/authenticate',
+      headers=headers,
+      data=json_data
     )
     return response
 
@@ -150,34 +174,22 @@ class UsersTest(BaseTestCase):
     self.assertEqual(response.status_code, 403)
 
   def test_authenticate_user_successfully(self):
-    test_username = 'test_user'
-    test_password = 'test_password'
-    test_user = UsersTest.create_user(
-      username=test_username,
-      password=test_password
-    )
+    response = self.authorize_user('test_user', 'test_password')
+    print(response)
+    self.assertEqual(response.status_code, 201)
 
-    headers = {
-      'Content-Type': 'application/json'
-    }
-    data = dict(username=test_username, password=test_password)
-    json_data = json.dumps(data)
-    json_data_length = len(json_data)
-    headers['Content-Length'] =  json_data_length
-
-    response = self.client.post(
-      '/api/v0/authenticate',
-      headers=headers
-    )
-    self.assertEqual(response.status_code, 200)
+  def test_authenticate_user_response_contains_cors_headers(self):
+    response = self.authorize_user('test_user', 'test_password')
+    print(response)
+    self.assertCORSHeaders(response)
 
   def test_get_auth_token_successfully(self):
-    response = self.authorize_user('test_user', 'test_password')
+    response = self.get_token_for_user('test_user', 'test_password')
     data = json.loads(response.data)
     self.assertIn('token', data.keys())
 
   def test_get_auth_token_response_contains_cors_headers(self):
-    response = self.authorize_user('test_user', 'test_password')
+    response = self.get_token_for_user('test_user', 'test_password')
     self.assertCORSHeaders(response)
 
   def test_get_auth_token_failure(self):

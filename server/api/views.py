@@ -74,6 +74,33 @@ def new_user():
   else:
     return Response(status=405) # invalid request type
 
+@users_app.route('/api/v0/authenticate', methods=['POST'])
+def authenticate_user():
+  """API endpoint for authenticating a new user
+
+  :return: status code 400 BAD REQUEST - missing username or password
+  :return: status code 403 FORBIDDEN - user not authenticated
+  :return: status code 405 METHOD NOT ALLOWED - invalid JSON or request type
+  :return: status code 201 CREATED - successful submission
+  """
+  if request.headers['content-type'] == 'application/json':
+    data = request.get_json()
+    if data:
+      username = data['username']
+      password = data['password']
+    else:
+      return Response(status=400) # no JSON to parse
+
+    if username is None or password is None:
+      return Response(status=400) # missing arguments
+
+    if not verify_password(username, password):
+      return Response(status=403) # User not authenticated
+
+    return Response(status=201)
+  else:
+    return Response(status=405) # invalid request type
+
 @users_app.route('/api/v0/users/<int:id>', methods=['GET'])
 @auth.login_required
 def get_user(id):
