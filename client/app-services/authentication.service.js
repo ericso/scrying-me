@@ -9,12 +9,14 @@
                                    '$cookieStore',
                                    '$rootScope',
                                    '$timeout',
-                                   'UserService'];
+                                   'UserService',
+                                   'API_URL'];
   function AuthenticationService($http,
                                  $cookieStore,
                                  $rootScope,
                                  $timeout,
-                                 UserService) {
+                                 UserService,
+                                 API_URL) {
     var service = {};
 
     service.Login = Login;
@@ -25,7 +27,8 @@
 
     function Login(username, password, callback) {
       $http.post(
-        '/api/authenticate', { username: username, password: password }
+        API_URL + '/authenticate',
+        { username: username, password: password }
       ).success(function (response) {
         callback(response);
       });
