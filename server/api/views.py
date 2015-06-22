@@ -84,6 +84,7 @@ def authenticate_user():
   :return: status code 201 CREATED - successful submission
   """
   if request.headers['content-type'] == 'application/json':
+    print(request)
     data = request.get_json()
     if data:
       username = data['username']
@@ -97,8 +98,9 @@ def authenticate_user():
     if not verify_password(username, password):
       return Response(status=403) # User not authenticated
 
-    return Response(status=201)
+    return jsonify({'username': username, 'success': True}), 201
   else:
+    print("invalid request type, no json")
     return Response(status=405) # invalid request type
 
 @users_app.route('/api/v0/users/<int:id>', methods=['GET'])

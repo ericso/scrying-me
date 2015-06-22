@@ -28,13 +28,18 @@
     function Login(username, password, callback) {
       $http.post(
         API_URL + '/authenticate',
-        { username: username, password: password }
+        { username: username, password: password },
+        { headers: { 'content-type': 'application/json'} }
       ).success(function (response) {
+        console.log("/authenticate route hit...")
+        console.log(response);
         callback(response);
       });
     }
 
     function SetCredentials(username, password) {
+      console.log(username);
+      console.log(password);
       var authdata = Base64.encode(username + ':' + password);
 
       $rootScope.globals = {
