@@ -126,11 +126,36 @@ class UsersTest(BaseTestCase):
     )
     self.assertEqual(response.status_code, 403)
 
+  def test_authenticate_user_successfully(self):
+    test_username = 'test_user'
+    test_password = 'test_password'
+    test_user = UsersTest.create_user(
+      username=test_username,
+      password=test_password
+    )
+
+    headers = {
+      'Content-Type': 'application/json'
+    }
+    data = dict(username=test_username, password=test_password)
+    json_data = json.dumps(data)
+    json_data_length = len(json_data)
+    headers['Content-Length'] =  json_data_length
+
+    response = self.client.post(
+      '/api/v0/authenticate',
+      headers=headers
+    )
+    self.assertEqual(response.status_code, 200)
+
   def test_get_auth_token_successfully(self):
     # Create the user to request a token
     test_username = 'test_user'
     test_password = 'test_password'
-    test_user = UsersTest.create_user(username=test_username, password=test_password)
+    test_user = UsersTest.create_user(
+      username=test_username,
+      password=test_password
+    )
 
     headers = UsersTest.create_basic_auth_header(
       username=test_username,
