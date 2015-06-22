@@ -13,7 +13,6 @@ from api.tests.test_users import UsersTest
 from common.tests import BaseTestCase
 
 
-
 class ApiTest(BaseTestCase):
 
   def setUp(self):

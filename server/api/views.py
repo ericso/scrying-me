@@ -9,6 +9,7 @@ from flask.ext.httpauth import HTTPBasicAuth
 
 from application import db
 from api.models import User, Trip
+from api.exceptions import InvalidAPIUsage
 
 
 users_app = Blueprint('users_app', __name__)
