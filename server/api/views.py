@@ -4,12 +4,11 @@ from datetime import datetime
 
 from flask import Blueprint, current_app
 from flask import jsonify, url_for
-from flask import g, request, Response
+from flask import g, abort, request, Response
 from flask.ext.httpauth import HTTPBasicAuth
 
 from application import db
 from api.models import User, Trip
-from api.exceptions import InvalidAPIUsage
 from serializers import user_json_serializer
 
 
@@ -44,6 +43,7 @@ def verify_password(username_or_token, password):
   g.user = user
   return True
 
+
 @users_app.route('/api/v0/users', methods=['GET'])
 @auth.login_required
 def all_users():
@@ -60,13 +60,9 @@ def all_users():
 def get_user(id):
   """API endpoint for getting a user by id
   """
-  if id is None:
-    abort(400) # missing arguments
-
   user = User.query.get(id)
   if user is None:
-    abort(400) # no user found
-
+    abort(404)
   return jsonify({'username': user.username}), 200
 
 # @users_app.route('/api/v0/users/<username>', methods=['GET'])

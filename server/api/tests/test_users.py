@@ -126,7 +126,7 @@ class UsersTest(BaseTestCase):
     self.assertEqual(len(users), num_users)
 
   def test_get_user_by_id(self):
-    # Create user
+    # create user
     test_username = 'test_user'
     test_password = 'test_password'
     test_user = UsersTest.create_user(
@@ -145,6 +145,26 @@ class UsersTest(BaseTestCase):
     self.assertEqual(response.status_code, 200)
     user = json.loads(response.data)
     self.assertEqual(user['username'], test_username)
+
+  def test_get_user_not_found(self):
+    # create user
+    test_username = 'test_user'
+    test_password = 'test_password'
+    test_user = UsersTest.create_user(
+      username=test_username,
+      password=test_password
+    )
+
+    auth_headers = UsersTest.create_basic_auth_header(
+      username=test_username,
+      password=test_password
+    )
+    response = self.client.get(
+      '/api/v0/users/999', # this user doesn't exist
+      headers=auth_headers
+    )
+    self.assertEqual(response.status_code, 404)
+    # self.assertEqual(response.message, "User not found")
 
   # def test_get_user_by_username(self):
   #   # Create user
