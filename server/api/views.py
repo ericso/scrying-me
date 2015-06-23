@@ -14,12 +14,12 @@ from serializers import user_json_serializer
 
 
 users_app = Blueprint('users_app', __name__)
-api_app = Blueprint('api_app', __name__)
+trips_app = Blueprint('trips_app', __name__)
 
 auth = HTTPBasicAuth()
 
 @users_app.after_request
-@api_app.after_request
+@trips_app.after_request
 def add_headers(response):
   response.headers.add('Access-Control-Allow-Origin', '*')
   response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
@@ -151,7 +151,7 @@ def get_auth_token():
   return jsonify({'token': token.decode('ascii')})
 
 
-@api_app.route('/api/v0/trips', methods=['POST'])
+@trips_app.route('/api/v0/trips', methods=['POST'])
 def new_trip():
   """API endpoint for creating a new trip
 
@@ -177,11 +177,11 @@ def new_trip():
     db.session.commit()
     return jsonify({'trip': trip.name}), \
       201, \
-      {'Location': url_for('api_app.get_trip', id=trip.id, _external=True)}
+      {'Location': url_for('trips_app.get_trip', id=trip.id, _external=True)}
   else:
     return Response(status=405) # invalid request type
 
-@api_app.route('/api/v0/trips/<int:id>', methods=['GET'])
+@trips_app.route('/api/v0/trips/<int:id>', methods=['GET'])
 @auth.login_required
 def get_trip(id):
   """API endpoint for getting a trip by id

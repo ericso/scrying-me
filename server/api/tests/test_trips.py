@@ -13,11 +13,9 @@ from api.tests.test_users import UsersTest
 from common.tests import BaseTestCase
 
 
-class ApiTest(BaseTestCase):
+class TripsTest(BaseTestCase):
 
   def setUp(self):
-    """Creates a user and saves the auth token
-    """
     with self.app.app_context():
       db.create_all()
 
@@ -104,7 +102,11 @@ class ApiTest(BaseTestCase):
     trip_name = "My Trip"
     trip_start = date(year=1970, month=1, day=1)
     trip_end = date(year=1970, month=1, day=31)
-    test_trip = ApiTest.create_trip(name=trip_name, start=trip_start, end=trip_end)
+    test_trip = TripsTest.create_trip(
+      name=trip_name,
+      start=trip_start,
+      end=trip_end
+    )
 
     response = self.client.get(
       '/api/v0/trips/%s' % (test_trip.id,),

@@ -24,10 +24,10 @@ def create_app(config_filemane):
 
   # import blueprints
   from api.views import users_app
-  from api.views import api_app
+  from api.views import trips_app
 
   # register blueprints
   app.register_blueprint(users_app)
-  app.register_blueprint(api_app)
+  app.register_blueprint(trips_app)
 
   return app
