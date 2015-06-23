@@ -77,20 +77,6 @@ class ApiTest(BaseTestCase):
     return response
 
   ### Tests ###
-  def test_get_resource_with_username_and_password(self):
-    resource='resources'
-    response = self.get_resource_with_username_and_password(resource)
-    data = json.loads(response.data)
-    self.assertEqual(response.status_code, 200)
-    self.assertIn('data', data.keys())
-
-  def test_get_resource_with_username_and_password(self):
-    resource='resources'
-    response = self.get_resource_with_auth_token(resource)
-    data = json.loads(response.data)
-    self.assertEqual(response.status_code, 200)
-    self.assertIn('data', data.keys())
-
   def test_create_new_trip_successfully(self):
     headers = {
       'Content-Type': 'application/json'

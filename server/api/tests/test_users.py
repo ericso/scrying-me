@@ -8,7 +8,7 @@ from flask.ext.testing import TestCase
 from application import db
 from api.models import User
 from common.tests import BaseTestCase
-
+from common.util import rand_string_gen
 
 class UsersTest(BaseTestCase):
 
@@ -87,6 +87,15 @@ class UsersTest(BaseTestCase):
     return user
 
   @staticmethod
+  def generate_test_users(n=1):
+    """Returns a list of n test users
+    """
+    rv = list()
+    for i in xrange(0, n):
+      rv.append({'username': rand_string_gen(), 'password': rand_string_gen()})
+    return rv
+
+  @staticmethod
   def create_basic_auth_header(username, password):
     """
     :return: Basic auth header entry
@@ -95,12 +104,35 @@ class UsersTest(BaseTestCase):
       'Authorization': 'Basic %s' % b64encode("{0}:{1}".format(username, password))
     }
 
+
   ### Tests ###
+  def test_get_all_users(self):
+    num_users = 5
+    users = UsersTest.generate_test_users(num_users)
+    for user in users:
+      UsersTest.create_user(user['username'], user['password'])
+
+    auth_headers = UsersTest.create_basic_auth_header(
+      username=users[0]['username'],
+      password=users[0]['password']
+    )
+    response = self.client.get(
+      '/api/v0/users',
+      headers=auth_headers
+    )
+    self.assertEqual(response.status_code, 200)
+    data = json.loads(response.data)
+    users = data['data']
+    self.assertEqual(len(users), num_users)
+
   def test_get_user_by_id(self):
     # Create user
     test_username = 'test_user'
     test_password = 'test_password'
-    test_user = UsersTest.create_user(username=test_username, password=test_password)
+    test_user = UsersTest.create_user(
+      username=test_username,
+      password=test_password
+    )
 
     auth_headers = UsersTest.create_basic_auth_header(
       username=test_username,
@@ -139,7 +171,7 @@ class UsersTest(BaseTestCase):
       '/api/v0/users',
       content_type='text/html'
     )
-    self.assertEqual(response.status_code, 405)
+    self.assertEqual(response.status_code, 400)
 
   def test_create_new_user_successfully(self):
     headers = {

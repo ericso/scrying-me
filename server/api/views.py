@@ -10,6 +10,7 @@ from flask.ext.httpauth import HTTPBasicAuth
 from application import db
 from api.models import User, Trip
 from api.exceptions import InvalidAPIUsage
+from serializers import user_json_serializer
 
 
 users_app = Blueprint('users_app', __name__)
@@ -43,66 +44,16 @@ def verify_password(username_or_token, password):
   g.user = user
   return True
 
-@users_app.route('/api/v0/users', methods=['POST'])
-def new_user():
-  """API endpoint for creating a new user
-
-  :return: status code 400 BAD REQUEST - missing username or password
-  :return: status code 403 FORBIDDEN - user already exists
-  :return: status code 405 METHOD NOT ALLOWED - invalid JSON or request type
-  :return: status code 201 CREATED - successful submission
+@users_app.route('/api/v0/users', methods=['GET'])
+@auth.login_required
+def all_users():
+  """API endpoint for getting a list of all users
   """
-  if request.headers['content-type'] == 'application/json':
-    data = request.get_json()
-    if data:
-      username = data['username']
-      password = data['password']
-    else:
-      return Response(status=400) # no JSON to parse
-
-    if username is None or password is None:
-      return Response(status=400) # missing arguments
-    if User.query.filter_by(username=username).first() is not None:
-      return Response(status=403) # existing user
-
-    user = User(username=username)
-    user.hash_password(password)
-    db.session.add(user)
-    db.session.commit()
-    return jsonify({'username': user.username}), \
-      201, \
-      {'Location': url_for('users_app.get_user', id=user.id, _external=True)}
-  else:
-    return Response(status=405) # invalid request type
-
-@users_app.route('/api/v0/authenticate', methods=['POST'])
-def authenticate_user():
-  """API endpoint for authenticating a new user
-
-  :return: status code 400 BAD REQUEST - missing username or password
-  :return: status code 403 FORBIDDEN - user not authenticated
-  :return: status code 405 METHOD NOT ALLOWED - invalid JSON or request type
-  :return: status code 201 CREATED - successful submission
-  """
-  if request.headers['content-type'] == 'application/json':
-    print(request)
-    data = request.get_json()
-    if data:
-      username = data['username']
-      password = data['password']
-    else:
-      return Response(status=400) # no JSON to parse
-
-    if username is None or password is None:
-      return Response(status=400) # missing arguments
-
-    if not verify_password(username, password):
-      return Response(status=403) # User not authenticated
-
-    return jsonify({'username': username, 'success': True}), 201
-  else:
-    print("invalid request type, no json")
-    return Response(status=405) # invalid request type
+  users = User.query.all()
+  rv = list()
+  for user in users:
+    rv.append(user_json_serializer(user))
+  return jsonify({'data': rv}), 200
 
 @users_app.route('/api/v0/users/<int:id>', methods=['GET'])
 @auth.login_required
@@ -131,18 +82,73 @@ def get_user(id):
 
 #   return jsonify({'username': user.username}), 200
 
+@users_app.route('/api/v0/users', methods=['POST'])
+def new_user():
+  """API endpoint for creating a new user
+
+  :return: status code 400 BAD REQUEST - missing application/json header
+  :return: status code 400 BAD REQUEST - missing username or password
+  :return: status code 403 FORBIDDEN - user already exists
+  :return: status code 201 CREATED - successful submission
+  """
+  if request.headers['content-type'] == 'application/json':
+    data = request.get_json()
+    if data:
+      username = data['username']
+      password = data['password']
+    else:
+      return Response(status=400) # no JSON to parse
+
+    if username is None or password is None:
+      return Response(status=400) # missing arguments
+    if User.query.filter_by(username=username).first() is not None:
+      return Response(status=403) # existing user
+
+    user = User(username=username)
+    user.hash_password(password)
+    db.session.add(user)
+    db.session.commit()
+    return jsonify({'username': user.username}), \
+      201, \
+      {'Location': url_for('users_app.get_user', id=user.id, _external=True)}
+  else:
+    return Response(status=400) # invalid request type
+
+@users_app.route('/api/v0/authenticate', methods=['POST'])
+def authenticate_user():
+  """API endpoint for authenticating a new user
+
+  :return: status code 400 BAD REQUEST - missing application/json header
+  :return: status code 400 BAD REQUEST - missing username or password
+  :return: status code 403 FORBIDDEN - user not authenticated
+  :return: status code 201 CREATED - successful submission
+  """
+  if request.headers['content-type'] == 'application/json':
+    print(request)
+    data = request.get_json()
+    if data:
+      username = data['username']
+      password = data['password']
+    else:
+      return Response(status=400) # no JSON to parse
+
+    if username is None or password is None:
+      return Response(status=400) # missing arguments
+
+    if not verify_password(username, password):
+      return Response(status=403) # User not authenticated
+
+    return jsonify({'username': username, 'success': True}), 201
+  else:
+    print("invalid request type, no json")
+    return Response(status=400) # invalid request type
+
 
 @users_app.route('/api/v0/token')
 @auth.login_required
 def get_auth_token():
   token = g.user.generate_auth_token()
   return jsonify({'token': token.decode('ascii')})
-
-
-@api_app.route('/api/v0/resources')
-@auth.login_required
-def get_resource():
-  return jsonify({'data': 'Hello, %s!' % g.user.username}), 200
 
 
 @api_app.route('/api/v0/trips', methods=['POST'])

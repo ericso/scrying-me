@@ -18,3 +18,8 @@ def default_json_serializer(obj):
     obj.microsecond / 1000
   )
   return millis
+
+def user_json_serializer(obj):
+  """Converts a User object into a dict for API response
+  """
+  return dict(username=obj.username)
