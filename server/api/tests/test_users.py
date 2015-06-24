@@ -164,7 +164,7 @@ class UsersTest(BaseTestCase):
       headers=auth_headers
     )
     self.assertEqual(response.status_code, 404)
-    # self.assertEqual(response.message, "User not found")
+    self.assertEqual(response.message, "User not found")
 
   # def test_get_user_by_username(self):
   #   # Create user

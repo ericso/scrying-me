@@ -7,7 +7,10 @@ from flask import jsonify, url_for
 from flask import g, abort, request, Response
 from flask.ext.httpauth import HTTPBasicAuth
 
-from application import db
+from werkzeug.exceptions import HTTPException
+
+from application import db, errorhandler
+
 from api.models import User, Trip
 from serializers import user_json_serializer
 
@@ -17,6 +20,7 @@ trips_app = Blueprint('trips_app', __name__)
 
 auth = HTTPBasicAuth()
 
+
 @users_app.after_request
 @trips_app.after_request
 def add_headers(response):
@@ -24,7 +28,6 @@ def add_headers(response):
   response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
   response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')
   return response
-
 
 @auth.verify_password
 def verify_password(username_or_token, password):
@@ -43,6 +46,21 @@ def verify_password(username_or_token, password):
   g.user = user
   return True
 
+@errorhandler.errorhandler(users_app)
+@errorhandler.errorhandler(trips_app)
+def handle_error(error):
+  data = {
+    'error': {
+      'code': error.code,
+      'message': error.description
+    }
+  }
+  response = Response(
+    json.dumps(data),
+    mimetype='application/json',
+    status=error.code
+  )
+  return response
 
 @users_app.route('/api/v0/users', methods=['GET'])
 @auth.login_required
@@ -62,7 +80,9 @@ def get_user(id):
   """
   user = User.query.get(id)
   if user is None:
-    abort(404)
+    print("no user found, raising exception")
+    # abort(404)
+    raise HTTPException(description="User not found", code=404)
   return jsonify({'username': user.username}), 200
 
 # @users_app.route('/api/v0/users/<username>', methods=['GET'])

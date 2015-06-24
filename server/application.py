@@ -2,9 +2,10 @@
 from flask import Flask
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import LoginManager
-
+from flask.ext.errorhandler import ErrorHandler
 
 db = SQLAlchemy()
+errorhandler = ErrorHandler()
 
 def create_app(config_filemane):
   """Application factory
@@ -29,5 +30,8 @@ def create_app(config_filemane):
   # register blueprints
   app.register_blueprint(users_app)
   app.register_blueprint(trips_app)
+
+  # error handling
+  errorhandler.init_app(app)
 
   return app
