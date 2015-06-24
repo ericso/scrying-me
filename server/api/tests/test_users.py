@@ -208,6 +208,9 @@ class UsersTest(BaseTestCase):
       data=json_data
     )
     self.assertEqual(response.status_code, 201)
+    res_data = json.loads(response.data)
+    self.assertEqual(res_data['user']['username'], data['username'])
+    self.assertIn('uri', res_data['user'].keys())
 
   def test_create_new_user_but_user_exists(self):
     # Create user
@@ -234,28 +237,31 @@ class UsersTest(BaseTestCase):
     )
     self.assertEqual(response.status_code, 403)
 
-  def test_authenticate_user_successfully(self):
-    response = self.authorize_user('test_user', 'test_password')
-    print(response)
-    self.assertEqual(response.status_code, 201)
+  # TODO(eso) run authenticate tests
+  # def test_authenticate_user_successfully(self):
+  #   response = self.authorize_user('test_user', 'test_password')
+  #   print(response)
+  #   self.assertEqual(response.status_code, 201)
 
-  def test_authenticate_user_response_contains_cors_headers(self):
-    response = self.authorize_user('test_user', 'test_password')
-    self.assertCORSHeaders(response)
+  # def test_authenticate_user_response_contains_cors_headers(self):
+  #   response = self.authorize_user('test_user', 'test_password')
+  #   self.assertCORSHeaders(response)
 
-  def test_authenticate_user_unsuccessfully(self):
-    response = self.authorize_user('test_user', 'test_password', failure=True)
-    self.assertEqual(response.status_code, 403)
+  # def test_authenticate_user_unsuccessfully(self):
+  #   response = self.authorize_user('test_user', 'test_password', failure=True)
+  #   self.assertEqual(response.status_code, 403)
 
-  def test_get_auth_token_successfully(self):
-    response = self.get_token_for_user('test_user', 'test_password')
-    data = json.loads(response.data)
-    self.assertIn('token', data.keys())
 
-  def test_get_auth_token_response_contains_cors_headers(self):
-    response = self.get_token_for_user('test_user', 'test_password')
-    self.assertCORSHeaders(response)
+  # NOTE(eso): Removed auth token functionality
+  # def test_get_auth_token_successfully(self):
+  #   response = self.get_token_for_user('test_user', 'test_password')
+  #   data = json.loads(response.data)
+  #   self.assertIn('token', data.keys())
 
-  def test_get_auth_token_failure(self):
-    response = self.get_token_for_user('test_user', 'test_password', failure=True)
-    self.assertEqual(response.status_code, 401)
+  # def test_get_auth_token_response_contains_cors_headers(self):
+  #   response = self.get_token_for_user('test_user', 'test_password')
+  #   self.assertCORSHeaders(response)
+
+  # def test_get_auth_token_failure(self):
+  #   response = self.get_token_for_user('test_user', 'test_password', failure=True)
+  #   self.assertEqual(response.status_code, 401)

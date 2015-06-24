@@ -24,6 +24,15 @@ $ curl -u test_user:test_password -i -X GET http://127.0.0.1:5000/api/v0/token
 # Get resource using retrieved token, token value is sent in username field, password is unused so can be anything
 $ curl -u token_value:unused -i -X GET http://127.0.0.1:5000/api/v0/resources
 
+Run the tests:
+$ nosetests
+
+to run a single test controller:
+nosetests app.tests.test_filename:TestControllerClassName
+
+to run a single test method:
+nosetests app.tests.test_filename:TestControllerClassName.test_method_name
+
 
 TODO:
 Write tests for User model

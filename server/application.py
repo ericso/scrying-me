@@ -2,9 +2,10 @@
 from flask import Flask
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import LoginManager
-
+from flask.ext.restful import Api
 
 db = SQLAlchemy()
+api = Api()
 
 def create_app(config_filemane):
   """Application factory
@@ -22,9 +23,12 @@ def create_app(config_filemane):
   login_manager = LoginManager()
   login_manager.init_app(app)
 
+  # flask-restful
+  api.init_app(app)
+
   # import blueprints
-  from api.views import users_app
-  from api.views import trips_app
+  from api.users import users_app
+  from api.trips import trips_app
 
   # register blueprints
   app.register_blueprint(users_app)

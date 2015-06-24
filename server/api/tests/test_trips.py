@@ -31,12 +31,12 @@ class TripsTest(BaseTestCase):
       username=self.test_username,
       password=self.test_password
     )
-    # get auth token
-    response = self.client.get(
-      '/api/v0/token',
-      headers=self.auth_headers
-    )
-    self.token = json.loads(response.data)['token']
+    # # get auth token
+    # response = self.client.get(
+    #   '/api/v0/token',
+    #   headers=self.auth_headers
+    # )
+    # self.token = json.loads(response.data)['token']
 
   def tearDown(self):
     with self.app.app_context():
@@ -96,6 +96,9 @@ class TripsTest(BaseTestCase):
       data=json_data
     )
     self.assertEqual(response.status_code, 201)
+    res_data = json.loads(response.data)
+    self.assertEqual(res_data['trip']['name'], data['name'])
+    self.assertIn('uri', res_data['trip'].keys())
 
   def test_get_trip_by_id(self):
     # Create a trip
@@ -113,5 +116,5 @@ class TripsTest(BaseTestCase):
       headers=self.auth_headers
     )
     self.assertEqual(response.status_code, 200)
-    return_trip = json.loads(response.data)
-    self.assertEqual(return_trip['trip'], trip_name)
+    res_data = json.loads(response.data)
+    self.assertEqual(res_data['trip']['name'], trip_name)
