@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from passlib.apps import custom_app_context as pwd_context
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from itsdangerous import BadSignature, SignatureExpired
@@ -51,10 +53,27 @@ class User(db.Model):
 
 
 class Trip(db.Model):
+
+  datetime_str_fmt = "%Y-%m-%d"
+
   __tablename__ = 'trips'
   id = db.Column(db.Integer, primary_key=True)
   name = db.Column(db.String(256), index=True)
-  start = db.Column(db.DateTime)
-  end = db.Column(db.DateTime)
+  start = db.Column(db.Date)
+  end = db.Column(db.Date)
   created_at = db.Column(db.DateTime, server_default=db.func.now())
   updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
+
+  def __init__(self, **kwargs):
+    super(Trip, self).__init__()
+    self.name = kwargs['name']
+
+    start = kwargs['start']
+    if isinstance(start, (str, unicode)):
+      start = datetime.strptime(kwargs['start'], self.datetime_str_fmt)
+    self.start = start
+
+    end = kwargs['end']
+    if isinstance(end, (str, unicode)):
+      end = datetime.strptime(kwargs['end'], self.datetime_str_fmt)
+    self.end = end

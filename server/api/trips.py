@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
 from datetime import datetime
+from datetime import time
 
 from flask import Blueprint, current_app
 from flask import jsonify, url_for
@@ -22,8 +23,8 @@ def after_request(response):
 
 trip_fields = {
   'name': fields.String,
-  'start': fields.DateTime(),
-  'end': fields.DateTime(),
+  'start': fields.DateTime(dt_format='iso8601'),
+  'end': fields.DateTime(dt_format='iso8601'),
   'uri': fields.Url('trip')
 }
 
@@ -57,6 +58,7 @@ class TripListAPI(Resource):
       name = args['name']
       start = args['start']
       end = args['end']
+
       trip = Trip(name=name, start=start, end=end)
       db.session.add(trip)
       db.session.commit()

@@ -8,7 +8,7 @@ from flask.ext.testing import TestCase
 
 from application import db
 from api.models import Trip
-from api.serializers import default_json_serializer
+from api.serializers import date_serializer
 from api.tests.test_users import UsersTest
 from common.tests import BaseTestCase
 
@@ -31,12 +31,6 @@ class TripsTest(BaseTestCase):
       username=self.test_username,
       password=self.test_password
     )
-    # # get auth token
-    # response = self.client.get(
-    #   '/api/v0/token',
-    #   headers=self.auth_headers
-    # )
-    # self.token = json.loads(response.data)['token']
 
   def tearDown(self):
     with self.app.app_context():
@@ -83,7 +77,7 @@ class TripsTest(BaseTestCase):
     date_start = date(year=1970, month=1, day=1)
     date_end = date(year=1970, month=1, day=31)
     data = dict(name='test_trip', start=date_start, end=date_end)
-    json_data = json.dumps(data, default=default_json_serializer)
+    json_data = json.dumps(data, default=date_serializer)
     json_data_length = len(json_data)
     headers['Content-Length'] =  json_data_length
 
@@ -97,6 +91,7 @@ class TripsTest(BaseTestCase):
     )
     self.assertEqual(response.status_code, 201)
     res_data = json.loads(response.data)
+    print(res_data)
     self.assertEqual(res_data['trip']['name'], data['name'])
     self.assertIn('uri', res_data['trip'].keys())
 
