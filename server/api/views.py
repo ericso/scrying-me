@@ -49,6 +49,7 @@ def verify_password(username_or_token, password):
 @errorhandler.errorhandler(users_app)
 @errorhandler.errorhandler(trips_app)
 def handle_error(error):
+  print("in handle_error")
   data = {
     'error': {
       'code': error.code,
@@ -82,7 +83,7 @@ def get_user(id):
   if user is None:
     print("no user found, raising exception")
     # abort(404)
-    raise HTTPException(description="User not found", code=404)
+    raise HTTPException(description="User not found", response=Response(status=404))
   return jsonify({'username': user.username}), 200
 
 # @users_app.route('/api/v0/users/<username>', methods=['GET'])

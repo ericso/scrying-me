@@ -163,8 +163,10 @@ class UsersTest(BaseTestCase):
       '/api/v0/users/999', # this user doesn't exist
       headers=auth_headers
     )
+    # data = json.loads(response.data)
     self.assertEqual(response.status_code, 404)
-    self.assertEqual(response.message, "User not found")
+    self.assertEqual(response.mimetype, 'application/json')
+    # self.assertEqual(data.message, "User not found")
 
   # def test_get_user_by_username(self):
   #   # Create user
