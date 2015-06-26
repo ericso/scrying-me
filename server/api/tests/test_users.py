@@ -154,7 +154,7 @@ class UsersTest(BaseTestCase):
       username=test_username,
       password=test_password
     )
-
+    # create the auth header
     auth_headers = UsersTest.create_basic_auth_header(
       username=test_username,
       password=test_password
@@ -213,7 +213,7 @@ class UsersTest(BaseTestCase):
     self.assertIn('uri', res_data['user'].keys())
 
   def test_create_new_user_but_user_exists(self):
-    # Create user
+    # create user
     test_username = 'test_user'
     test_password = 'test_password'
     test_user = UsersTest.create_user(
@@ -221,14 +221,14 @@ class UsersTest(BaseTestCase):
       password=test_password
     )
 
-    # Try to create the same user by sending request
+    # try to create the same user by sending request
     headers = {
       'Content-Type': 'application/json'
     }
     data = dict(username=test_username, password=test_password)
     json_data = json.dumps(data)
     json_data_length = len(json_data)
-    headers['Content-Length'] =  json_data_length
+    headers['Content-Length'] = json_data_length
 
     response = self.client.post(
       '/api/v0/users',
@@ -236,6 +236,43 @@ class UsersTest(BaseTestCase):
       data=json_data
     )
     self.assertEqual(response.status_code, 403)
+
+  def test_update_user_password(self):
+    # create user
+    test_username = 'test_user'
+    test_password = 'test_password'
+    test_user = UsersTest.create_user(
+      username=test_username,
+      password=test_password
+    )
+    headers = dict()
+
+    # create the auth header
+    headers.update(
+      UsersTest.create_basic_auth_header(
+        username=test_username,
+        password=test_password
+      )
+    )
+
+    # create the json payload
+    new_password = 'new_password'
+    data = dict(password=new_password)
+    json_data = json.dumps(data)
+    json_data_length = len(json_data)
+
+    # update the content headers
+    headers.update({
+      'Content-Type': 'application/json',
+      'Content-Length': json_data_length
+    })
+
+    response = self.client.put(
+      '/api/v0/users/%s' % (test_user.id,),
+      headers=headers,
+      data=json_data
+    )
+    self.assertEqual(response.status_code, 201)
 
 
   def test_authenticate_user_successfully(self):

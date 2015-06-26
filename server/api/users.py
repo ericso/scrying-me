@@ -22,12 +22,6 @@ auth = HTTPBasicAuth()
 def after_request(response):
   return add_cors_headers(response)
 
-# def add_headers(response):
-#   response.headers.add('Access-Control-Allow-Origin', '*')
-#   response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-#   response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')
-#   return response
-
 @auth.verify_password
 def verify_password(username_or_token, password):
   """Callback for Flask-HTTPAuth to verify given password for username
@@ -48,7 +42,6 @@ def verify_password(username_or_token, password):
 
 user_fields = {
   'username': fields.String,
-  # 'password': fields.String,
   'uri': fields.Url('user')
 }
 
@@ -100,11 +93,6 @@ class UserAPI(Resource):
 
   def __init__(self):
     self.reqparse = reqparse.RequestParser()
-    self.reqparse.add_argument('username',
-                               type=str,
-                               required=True,
-                               help="No username provided",
-                               location='json')
     self.reqparse.add_argument('password',
                                type=str,
                                required=True,
@@ -120,10 +108,23 @@ class UserAPI(Resource):
     return {'username': user.username}, 200
 
   def put(self, id):
-    pass
+    if request.headers['content-type'] == 'application/json':
+      args = self.reqparse.parse_args()
+      password = args['password']
+      user = User.query.get(id)
+      if user is None:
+        abort(404)
+
+      # TODO(eso) abort if hashed password matches old password
+      user.hash_password(password)
+      db.session.add(user)
+      db.session.commit()
+      return {'user': marshal(user, user_fields)}, 201
+    else:
+      return Response(status=400) # invalid request type
 
   def delete(self, id):
-    pass
+    abort(400)
 
 
 api.add_resource(UserListAPI, '/api/v0/users', endpoint='users')

@@ -31,8 +31,8 @@ to run a single test controller:
 nosetests app.tests.test_filename:TestControllerClassName
 
 to run a single test method:
-nosetests app.tests.test_filename:TestControllerClassName.test_method_name
-
+nosetests app_name.tests.test_filename:TestControllerClassName.test_method_name
+(e.g.: nosetests api.tests.test_users:UsersTest.test_update_user_password)
 
 TODO:
 Write tests for User model
