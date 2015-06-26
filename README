@@ -45,3 +45,7 @@ users api routes
  - get user by username should use same get route as ID, it should check if integer or string
  - create user should return username successfully created
  - change /token route to /authenticate
+
+Add foreign key to tie Trips to Users
+Add tests
+Write database migration scripts

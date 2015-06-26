@@ -50,7 +50,11 @@ class TripListAPI(Resource):
     super(TripListAPI, self).__init__()
 
   def get(self):
-    pass
+    trips = Trip.query.all()
+    rv = list()
+    for trip in trips:
+      rv.append(marshal(trip, trip_fields))
+    return {'data': rv}, 200
 
   def post(self):
     if request.headers['content-type'] == 'application/json':

@@ -100,7 +100,6 @@ class UserAPI(Resource):
                                location='json')
     super(UserAPI, self).__init__()
 
-
   def get(self, id):
     user = User.query.get(id)
     if user is None:
@@ -123,8 +122,15 @@ class UserAPI(Resource):
     else:
       return Response(status=400) # invalid request type
 
+  # TODO(eso) this api route should be protected by a consent token from the client
+  # TODO(eso) implement active/inactive users
   def delete(self, id):
-    abort(400)
+    user = User.query.get(id)
+    if user is None:
+      abort(404)
+    db.session.delete(user)
+    db.session.commit()
+    return Response(status=202)
 
 
 api.add_resource(UserListAPI, '/api/v0/users', endpoint='users')

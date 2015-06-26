@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
 from base64 import b64encode
+from copy import copy
 
 from flask import Flask
 from flask.ext.testing import TestCase
@@ -274,6 +275,36 @@ class UsersTest(BaseTestCase):
     )
     self.assertEqual(response.status_code, 201)
 
+  def test_delete_user(self):
+    # create user
+    test_username = 'test_user'
+    test_password = 'test_password'
+    test_user = UsersTest.create_user(
+      username=test_username,
+      password=test_password
+    )
+    test_user_id = copy(test_user.id)
+    headers = dict()
+
+    # create the auth header
+    headers.update(
+      UsersTest.create_basic_auth_header(
+        username=test_username,
+        password=test_password
+      )
+    )
+    response = self.client.delete(
+      '/api/v0/users/%s' % (test_user_id,),
+      headers=headers
+    )
+    self.assertEqual(response.status_code, 202)
+
+    # try querying for the user should return 401 UNAUTHORIZED
+    response = self.client.get(
+      '/api/v0/users/%s' % (test_user_id,),
+      headers=headers
+    )
+    self.assertEqual(response.status_code, 401)
 
   def test_authenticate_user_successfully(self):
     response = self.authorize_user('test_user', 'test_password')
