@@ -4,34 +4,43 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import LoginManager
 from flask.ext.restful import Api
 
+
 db = SQLAlchemy()
-api = Api()
+api = Api(prefix='/api/v0')
 
 def create_app(config_filemane):
   """Application factory
   """
   # define the WSGI application object
-  app = Flask(__name__)
+  flask_app = Flask(__name__)
 
   # configuration
-  app.config.from_object(config_filemane)
+  flask_app.config.from_object(config_filemane)
 
   # initialize the database
-  db.init_app(app)
+  db.init_app(flask_app)
 
   # login
   login_manager = LoginManager()
-  login_manager.init_app(app)
+  login_manager.init_app(flask_app)
+
+  # blueprints
+  from app.users import users_blueprint
+  from app.trips import trips_blueprint
+
+  flask_app.register_blueprint(users_blueprint)
+  flask_app.register_blueprint(trips_blueprint)
 
   # flask-restful
-  api.init_app(app)
+  from app.users import UserListAPI, UserAPI
+  from app.trips import TripListAPI, TripAPI
 
-  # import blueprints
-  from api.users import users_app
-  from api.trips import trips_app
+  api.add_resource(UserListAPI, '/users', endpoint='users')
+  api.add_resource(UserAPI, '/users/<int:id>', endpoint='user')
 
-  # register blueprints
-  app.register_blueprint(users_app)
-  app.register_blueprint(trips_app)
+  api.add_resource(TripListAPI, '/trips', endpoint='trips')
+  api.add_resource(TripAPI, '/trips/<int:id>', endpoint='trip')
 
-  return app
+  api.init_app(flask_app)
+
+  return flask_app

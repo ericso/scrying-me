@@ -7,7 +7,7 @@ from flask import Flask
 from flask.ext.testing import TestCase
 
 from application import db
-from api.models import User
+from app.models import User
 from common.tests import BaseTestCase
 from common.util import rand_string_gen
 

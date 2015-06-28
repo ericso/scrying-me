@@ -10,14 +10,14 @@ from flask.ext.httpauth import HTTPBasicAuth
 from flask.ext.restful import Resource, reqparse, fields, marshal
 
 from application import db, api
-from api.models import Trip
-from api.users import auth
+from app.models import Trip
+from app.users import auth
 from common.http import add_cors_headers
 
 
-trips_app = Blueprint('trips_app', __name__)
+trips_blueprint = Blueprint('trips_blueprint', __name__)
 
-@trips_app.after_request
+@trips_blueprint.after_request
 def after_request(response):
   return add_cors_headers(response)
 
@@ -105,8 +105,3 @@ class TripAPI(Resource):
 
   def delete(self, id):
     pass
-
-
-api.add_resource(TripListAPI, '/api/v0/trips', endpoint='trips')
-api.add_resource(TripAPI, '/api/v0/trips/<int:id>', endpoint='trip')
-

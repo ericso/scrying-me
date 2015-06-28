@@ -9,16 +9,16 @@ from flask.ext.httpauth import HTTPBasicAuth
 from flask.ext.restful import Resource, reqparse, fields, marshal
 
 from application import db, api
-from api.models import User, Trip
-from api.serializers import user_json_serializer
+from app.models import User, Trip
+from app.serializers import user_json_serializer
 from common.http import add_cors_headers
 
 
-users_app = Blueprint('users_app', __name__)
+users_blueprint = Blueprint('users_blueprint', __name__)
 
 auth = HTTPBasicAuth()
 
-@users_app.after_request
+@users_blueprint.after_request
 def after_request(response):
   return add_cors_headers(response)
 
@@ -133,11 +133,7 @@ class UserAPI(Resource):
     return Response(status=202)
 
 
-api.add_resource(UserListAPI, '/api/v0/users', endpoint='users')
-api.add_resource(UserAPI, '/api/v0/users/<int:id>', endpoint='user')
-
-
-@users_app.route('/api/v0/authenticate', methods=['POST'])
+@users_blueprint.route('/api/v0/authenticate', methods=['POST'])
 def authenticate_user():
   """API endpoint for authenticating a new user
 

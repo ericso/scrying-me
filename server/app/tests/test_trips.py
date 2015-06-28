@@ -7,9 +7,9 @@ from flask import Flask
 from flask.ext.testing import TestCase
 
 from application import db
-from api.models import Trip
-from api.serializers import date_serializer
-from api.tests.test_users import UsersTest
+from app.models import Trip
+from app.serializers import date_serializer
+from app.tests.test_users import UsersTest
 from common.tests import BaseTestCase
 from common.util import rand_string_gen, rand_date
 
