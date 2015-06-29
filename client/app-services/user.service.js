@@ -36,7 +36,6 @@
       );
     }
 
-    // TODO(eso) implement API
     function GetByUsername(username) {
       return $http.get(
         API_URL + '/users/' + username

@@ -124,14 +124,13 @@ class UserListAPI(Resource):
       return Response(status=400) # invalid request type
 
 
-class UserIdAPI(Resource):
+class UserAPI(Resource):
   """
   Routes:
   GET     /users/:id
   PUT     /users/:id
   DELETE  /users/:id
   """
-
   decorators = [auth.login_required]
 
   def __init__(self):
@@ -141,10 +140,10 @@ class UserIdAPI(Resource):
                                required=True,
                                help="No password provided",
                                location='json')
-    super(UserIdAPI, self).__init__()
+    super(UserAPI, self).__init__()
 
   def get(self, id):
-    user = User.query.get(id)
+    user = User.query.get(id) or User.query.filter(User.username==id).first()
     if user is None:
       abort(404)
     return {'username': user.username}, 200
@@ -175,29 +174,9 @@ class UserIdAPI(Resource):
     db.session.commit()
     return Response(status=202)
 
-
-class UserNameAPI(Resource):
-  """
-  Routes:
-  GET  /users/:username
-  """
-
-  decorators = [auth.login_required]
-
-  def __init__(self):
-    super(UserNameAPI, self).__init__()
-
-  def get(self, username):
-    user = User.query.filter(username == username).first()
-    if user is None:
-      abort(404)
-    return {'username': user.username}, 200
-
-
 def add_user_resources():
   """Call this function in Flask application.py file to add these resources
   after the API object has been initialized with the WSGI app object
   """
   api.add_resource(UserListAPI, '/users', endpoint='users')
-  api.add_resource(UserIdAPI, '/users/<int:id>', endpoint='user_id')
-  api.add_resource(UserNameAPI, '/users/<string:username>', endpoint='user_name')
+  api.add_resource(UserAPI, '/users/<id>', endpoint='user')
