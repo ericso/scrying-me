@@ -22,6 +22,36 @@ auth = HTTPBasicAuth()
 def after_request(response):
   return add_cors_headers(response)
 
+@users_blueprint.route('/api/v0/authenticate', methods=['POST'])
+def authenticate_user():
+  """API endpoint for authenticating a new user
+
+  :return: status code 400 BAD REQUEST - missing application/json header
+  :return: status code 400 BAD REQUEST - missing username or password
+  :return: status code 403 FORBIDDEN - user not authenticated
+  :return: status code 201 CREATED - successful submission
+  """
+  if request.headers['content-type'] == 'application/json':
+    print(request)
+    data = request.get_json()
+    if data:
+      username = data['username']
+      password = data['password']
+    else:
+      return Response(status=400) # no JSON to parse
+
+    if username is None or password is None:
+      return Response(status=400) # missing arguments
+
+    if not verify_password(username, password):
+      return Response(status=403) # User not authenticated
+
+    return jsonify({'username': username, 'success': True}), 201
+  else:
+    print("invalid request type, no json")
+    return Response(status=400) # invalid request type
+
+
 @auth.verify_password
 def verify_password(username_or_token, password):
   """Callback for Flask-HTTPAuth to verify given password for username
@@ -132,32 +162,9 @@ class UserAPI(Resource):
     db.session.commit()
     return Response(status=202)
 
-
-@users_blueprint.route('/api/v0/authenticate', methods=['POST'])
-def authenticate_user():
-  """API endpoint for authenticating a new user
-
-  :return: status code 400 BAD REQUEST - missing application/json header
-  :return: status code 400 BAD REQUEST - missing username or password
-  :return: status code 403 FORBIDDEN - user not authenticated
-  :return: status code 201 CREATED - successful submission
+def add_user_resources():
+  """Call this function in Flask application.py file to add these resources
+  after the API object has been initialized with the WSGI app object
   """
-  if request.headers['content-type'] == 'application/json':
-    print(request)
-    data = request.get_json()
-    if data:
-      username = data['username']
-      password = data['password']
-    else:
-      return Response(status=400) # no JSON to parse
-
-    if username is None or password is None:
-      return Response(status=400) # missing arguments
-
-    if not verify_password(username, password):
-      return Response(status=403) # User not authenticated
-
-    return jsonify({'username': username, 'success': True}), 201
-  else:
-    print("invalid request type, no json")
-    return Response(status=400) # invalid request type
+  api.add_resource(UserListAPI, '/users', endpoint='users')
+  api.add_resource(UserAPI, '/users/<int:id>', endpoint='user')

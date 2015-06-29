@@ -121,7 +121,7 @@ class UsersTest(BaseTestCase):
       '/api/v0/users',
       headers=auth_headers
     )
-    self.assertEqual(response.status_code, 200)
+    self.assertStatus(response, 200)
     data = json.loads(response.data)
     users = data['data']
     self.assertEqual(len(users), num_users)

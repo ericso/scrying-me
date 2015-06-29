@@ -105,3 +105,10 @@ class TripAPI(Resource):
 
   def delete(self, id):
     pass
+
+def add_trip_resources():
+  """Call this function in Flask application.py file to add these resources
+  after the API object has been initialized with the WSGI app object
+  """
+  api.add_resource(TripListAPI, '/trips', endpoint='trips')
+  api.add_resource(TripAPI, '/trips/<int:id>', endpoint='trip')
