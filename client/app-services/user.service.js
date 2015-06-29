@@ -20,7 +20,7 @@
 
     function GetAll() {
       return $http.get(
-        '/users'
+        API_URL + '/users'
       ).then(
         handleSuccess,
         handleError('Error getting all users')
@@ -29,16 +29,17 @@
 
     function GetById(id) {
       return $http.get(
-        '/users/' + id
+        API_URL + '/users/' + id
       ).then(
         handleSuccess,
         handleError('Error getting user by id')
       );
     }
 
+    // TODO(eso) implement API
     function GetByUsername(username) {
       return $http.get(
-        '/api/users/' + username
+        API_URL + '/users/' + username
       ).then(
         handleSuccess,
         handleError('Error getting user by username')
@@ -58,7 +59,7 @@
 
     function Update(user) {
       return $http.put(
-        '/users/' + user.id, user
+        API_URL + '/users/' + user.id, user
       ).then(
         handleSuccess,
         handleError('Error updating user')
@@ -67,7 +68,7 @@
 
     function Delete(id) {
       return $http.delete(
-        '/users/' + id
+        API_URL + '/users/' + id
       ).then(
         handleSuccess,
         handleError('Error deleting user')
