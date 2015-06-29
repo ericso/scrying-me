@@ -18,10 +18,12 @@ users_blueprint = Blueprint('users_blueprint', __name__)
 
 auth = HTTPBasicAuth()
 
-@users_blueprint.after_request
-def after_request(response):
-  return add_cors_headers(response)
+# TODO(eso) decide if Blueprints are necessary here
+# @users_blueprint.after_request
+# def after_request(response):
+#   return add_cors_headers(response)
 
+# TODO(eso) refactor the authenticate into the user API class
 @users_blueprint.route('/api/v0/authenticate', methods=['POST'])
 def authenticate_user():
   """API endpoint for authenticating a new user
