@@ -31,6 +31,7 @@
         { username: username, password: password },
         { headers: { 'content-type': 'application/json'} }
       ).success(function (response) {
+        // TODO(eso) remove following console logs
         console.log("/authenticate route hit...")
         console.log(response);
         callback(response);
@@ -38,6 +39,7 @@
     }
 
     function SetCredentials(username, password) {
+      // TODO(eso) remove following console logs
       console.log(username);
       console.log(password);
       var authdata = Base64.encode(username + ':' + password);

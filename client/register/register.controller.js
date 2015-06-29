@@ -24,7 +24,7 @@
       ).then(function (response) {
         if (response.success) {
           FlashService.Success(
-            response.data.username + " successfully registered.",
+            response.data.user.username + " successfully registered.",
             true
           );
           $location.path('/login');
