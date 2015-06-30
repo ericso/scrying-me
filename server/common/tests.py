@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from flask import Flask
-from flask.ext.testing import TestCase
+# from flask.ext.testing import TestCase
+from unittest import TestCase
 
 from application import create_app
 
@@ -15,12 +16,11 @@ class BaseTestCase(TestCase):
   def _pre_setup(self):
     self.app = create_app('settings_test')
     self.client = self.app.test_client()
-    self.ctx = self.app.test_request_context()
-    self.ctx.push()
+    self._ctx = self.app.test_request_context()
+    self._ctx.push()
 
   def _post_teardown(self):
-    # self.ctx.pop()
-    pass
+    self._ctx.pop()
 
   def assertRedirects(self, resp, location):
     self.assertTrue(resp.status_code in (301, 302))
