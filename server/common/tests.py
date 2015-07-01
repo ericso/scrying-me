@@ -23,6 +23,7 @@ class BaseTestCase(TestCase):
     self._ctx.push()
 
   def _post_teardown(self):
+    print("in _post_teardown")
     self._ctx.pop()
 
   def assertRedirects(self, resp, location):
