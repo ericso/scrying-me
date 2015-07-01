@@ -3,10 +3,13 @@ from flask import Flask
 # from flask.ext.testing import TestCase
 from unittest import TestCase
 
-from application import create_app
-
 
 class BaseTestCase(TestCase):
+
+  def create_app(self):
+    """Implement this subclasses to create the test app
+    """
+    raise NotImplementedError
 
   def __call__(self, result=None):
     self._pre_setup()
@@ -14,7 +17,7 @@ class BaseTestCase(TestCase):
     self._post_teardown()
 
   def _pre_setup(self):
-    self.app = create_app('settings_test')
+    self.app = self.create_app()
     self.client = self.app.test_client()
     self._ctx = self.app.test_request_context()
     self._ctx.push()

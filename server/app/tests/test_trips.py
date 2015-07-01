@@ -10,8 +10,13 @@ from app.tests.test_users import UsersTest
 from common.tests import BaseTestCase
 from common.util import rand_string_gen, rand_date
 
+from application import create_app
+
 
 class TripsTest(BaseTestCase):
+
+  def create_app(self):
+    return create_app('settings_test')
 
   def setUp(self):
     with self.app.app_context():

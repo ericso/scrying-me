@@ -8,7 +8,13 @@ from app.models import User
 from common.tests import BaseTestCase
 from common.util import rand_string_gen
 
+from application import create_app
+
+
 class UsersTest(BaseTestCase):
+
+  def create_app(self):
+    return create_app('settings_test')
 
   def setUp(self):
     with self.app.app_context():
