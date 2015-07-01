@@ -5,8 +5,6 @@ from flask.ext.restful import Api
 from flask.ext.cors import CORS
 
 db = SQLAlchemy()
-api = Api(prefix='/api/v0')
-cors = CORS(resources={r'/api/v0/*': {'origins': '*'}})
 
 def create_app(config_filemane):
   """Application factory
@@ -27,39 +25,16 @@ def create_app(config_filemane):
   flask_app.register_blueprint(trips_blueprint)
 
   # flask-restful
-  from app.users import add_user_resources
-  from app.trips import add_trip_resources
-
-  # TODO(eso)
-  """
-  The proper way to add resources to the api is to do it before we call init_app()
-  However, in doing so our tests fail with the error:
-    AssertionError: View function mapping is overwriting an existing endpoint function: users
-    need to figure out why we're getting these AssertionErrors in the tests
-  """
-  # before init_app:
-  # single test fails (nosetests app.tests.test_users:UsersTest.test_get_all_users)
-  # nosetest fails
-  # curl passes
-  # API request via AngularJS successful
-  add_user_resources()
-  add_trip_resources()
-
+  from app.users import UserListAPI, UserAPI
+  from app.trips import TripListAPI, TripAPI
+  api = Api(prefix='/api/v0')
+  api.add_resource(UserListAPI, '/users', endpoint='users')
+  api.add_resource(UserAPI, '/users/<id>', endpoint='user')
+  api.add_resource(TripListAPI, '/trips', endpoint='trips')
+  api.add_resource(TripAPI, '/trips/<int:id>', endpoint='trip')
   api.init_app(flask_app)
 
-  # after init_app:
-  # single test passes (nosetests app.tests.test_users:UsersTest.test_get_all_users)
-  # running nosetests fails
-  # API request via curl returns 404
-  # API request via AngularJS returns 404 on options request
-  # add_user_resources()
-  # add_trip_resources()
-
-  # CORS handling
-  # from common.http import add_cors_headers
-  # @flask_app.after_request
-  # def after_request(response):
-  #   return add_cors_headers(response)
+  cors = CORS(resources={r'/api/v0/*': {'origins': '*'}})
   cors.init_app(flask_app)
 
   return flask_app

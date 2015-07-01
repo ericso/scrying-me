@@ -8,7 +8,7 @@ from flask import g, abort, request, Response
 from flask.ext.httpauth import HTTPBasicAuth
 from flask.ext.restful import Resource, reqparse, fields, marshal
 
-from application import db, api
+from application import db
 from app.models import User, Trip
 from app.serializers import user_json_serializer
 from common.http import add_cors_headers
@@ -179,10 +179,3 @@ class UserAPI(Resource):
     db.session.delete(user)
     db.session.commit()
     return Response(status=202)
-
-def add_user_resources():
-  """Call this function in Flask application.py file to add these resources
-  after the API object has been initialized with the WSGI app object
-  """
-  api.add_resource(UserListAPI, '/users', endpoint='users')
-  api.add_resource(UserAPI, '/users/<id>', endpoint='user')
