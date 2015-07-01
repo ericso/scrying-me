@@ -23,7 +23,13 @@ auth = HTTPBasicAuth()
 # def after_request(response):
 #   return add_cors_headers(response)
 
-# TODO(eso) refactor the authenticate into the user API class
+# TODO(eso) refactor the token and authenticate routes into the user API class
+@users_blueprint.route('/api/v0/token', methods=['GET'])
+@auth.login_required
+def get_auth_token():
+  token = g.user.generate_auth_token()
+  return jsonify({ 'token': token.decode('ascii') })
+
 @users_blueprint.route('/api/v0/authenticate', methods=['POST'])
 def authenticate_user():
   """API endpoint for authenticating a new user
