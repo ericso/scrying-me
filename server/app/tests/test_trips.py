@@ -3,9 +3,6 @@ import json
 from base64 import b64encode
 from datetime import date
 
-from flask import Flask
-from flask.ext.testing import TestCase
-
 from application import db
 from app.models import Trip
 from app.serializers import date_serializer

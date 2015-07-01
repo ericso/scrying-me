@@ -3,9 +3,6 @@ import json
 from base64 import b64encode
 from copy import copy
 
-from flask import Flask
-from flask.ext.testing import TestCase
-
 from application import db
 from app.models import User
 from common.tests import BaseTestCase
